@@ -1,0 +1,1 @@
+export const JOIN_ROOM_SUCCESSFUL = "Join room successful"

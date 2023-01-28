@@ -10,8 +10,8 @@ const Home: NextPage = () => {
         <title>Hill-Beck App</title>
       </Head>
       <MainContainer>
-        <div className="container flex flex-col items-center justify-center gap-12">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+        <div className="container flex flex-col items-center justify-center gap-12 min-h-[calc(100vh-4rem)]">
+          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] text-center">
             Hill-Beck <span className="text-[hsl(280,100%,70%)]">Land Division</span> App
           </h1>
           <div className="flex flex-col items-center gap-2">

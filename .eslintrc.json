@@ -1,9 +1,6 @@
 {
   "overrides": [
     {
-      "extends": [
-        "plugin:@typescript-eslint/recommended-requiring-type-checking"
-      ],
       "files": [
         "*.ts",
         "*.tsx"
@@ -31,6 +28,7 @@
       {
         "checksVoidReturn": false
       }
-    ]
+    ],
+    "@typescript-eslint/no-unsafe-assignment": 0
   }
 }

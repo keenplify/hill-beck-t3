@@ -8,6 +8,8 @@ import { api } from "../utils/api";
 import { z } from "zod";
 import { useRef } from "react";
 import { useRouter } from "next/router";
+import { useSocketIOStore } from "../stores/socketio";
+import { JOIN_ROOM_SUCCESSFUL } from "../socket/constants/messages";
 
 const schema = z.object({
     name: z.string().min(3, 'Room name must contain at least 3 character(s)')
@@ -63,9 +65,8 @@ const Rooms: NextPage = () => {
     const router = useRouter()
     const { data: rooms } = api.room.getRooms.useQuery();
     const { data: sessionData } = useSession();
-    const { mutate: joinRoomMutate } = api.room.joinRoom.useMutation({
-        onSuccess: () => router.push('/room')
-    })
+
+    const { socket } = useSocketIOStore()
 
     return (
         <>
@@ -94,7 +95,16 @@ const Rooms: NextPage = () => {
                                         <td>{room.name}</td>
                                         <td>{room.owner.name}</td>
                                         <td>
-                                            <button className="btn btn-primary w-full btn-sm" onClick={() => joinRoomMutate(room.id)}>Join</button>
+                                            <button className="btn btn-primary w-full btn-sm" onClick={() => {
+                                                socket.emit('join-room', {
+                                                    roomId: room.id,
+                                                    userId: sessionData.user?.id
+                                                })
+
+                                                socket.on('message', (message: string) => {
+                                                    message === JOIN_ROOM_SUCCESSFUL && router.push('/room')
+                                                })
+                                            }}>Join</button>
                                         </td>
                                     </tr>
                                 )) : <tr>
