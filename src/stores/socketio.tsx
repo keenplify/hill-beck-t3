@@ -8,11 +8,11 @@ import { toast } from 'react-toastify';
 interface SocketIOStore {
     socket: Socket<SocketIOEventsMap, SocketIOEventsMap>,
     latestMessage: string | null
-    latestException: object | null
+    latestException: string | null
 }
 
 export const useSocketIOStore = create<SocketIOStore>((set) => {
-    const socket = io()
+    const socket = io() as Socket<SocketIOEventsMap, SocketIOEventsMap>
 
     socket.on('message', (msg: string) => {
         typeof msg === 'string' && toast(msg)
@@ -21,7 +21,7 @@ export const useSocketIOStore = create<SocketIOStore>((set) => {
         })
     })
 
-    socket.on('exception', (exception: object) => {
+    socket.on('exception', (exception) => {
         typeof exception === 'string' && toast(exception, {
             type: 'error'
         })

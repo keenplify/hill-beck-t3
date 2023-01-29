@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "RoomStatus" AS ENUM ('Lobby', 'Started', 'Done');
+
 -- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
@@ -33,7 +36,7 @@ CREATE TABLE "User" (
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
-    "currentRoomId" TEXT NOT NULL,
+    "currentRoomId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -49,12 +52,23 @@ CREATE TABLE "VerificationToken" (
 CREATE TABLE "Room" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "status" "RoomStatus" NOT NULL DEFAULT 'Lobby',
     "ownerId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LandPartitions" (
+    "id" TEXT NOT NULL,
+    "edges" JSONB NOT NULL,
+    "ownerId" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL,
+    "roomId" TEXT NOT NULL,
+
+    CONSTRAINT "LandPartitions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -83,3 +97,9 @@ ALTER TABLE "User" ADD CONSTRAINT "User_currentRoomId_fkey" FOREIGN KEY ("curren
 
 -- AddForeignKey
 ALTER TABLE "Room" ADD CONSTRAINT "Room_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LandPartitions" ADD CONSTRAINT "LandPartitions_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LandPartitions" ADD CONSTRAINT "LandPartitions_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;

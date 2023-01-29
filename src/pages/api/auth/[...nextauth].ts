@@ -1,5 +1,7 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import RedditProvider from "next-auth/providers/reddit";
+
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
@@ -23,6 +25,10 @@ export const authOptions: NextAuthOptions = {
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
+    RedditProvider({
+      clientId: env.REDDIT_CLIENT_ID,
+      clientSecret: env.REDDIT_CLIENT_SECRET,
+    })
     /**
      * ...add more providers here
      *

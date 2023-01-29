@@ -1,15 +1,12 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useSocketIOStore } from "../stores/socketio";
 import { api } from "../utils/api";
 
 export function MainNavbar() {
-    const router = useRouter()
     const { data: sessionData } = useSession();
     const { data: currentRoom } = api.room.currentRoom.useQuery();
-    const { mutate: leaveRoom } = api.room.leaveRoom.useMutation({
-        onSuccess: () => router.push('/rooms')
-    });
+    const { socket } = useSocketIOStore()
 
     return <div className="navbar bg-base-100 h-[4rem]">
         <div className="navbar-start">
@@ -22,7 +19,10 @@ export function MainNavbar() {
             {
                 currentRoom ? <button
                     className="btn btn-secondary"
-                    onClick={() => leaveRoom()}
+                    onClick={() => sessionData?.user && socket.emit('leave-room', {
+                        userId: sessionData.user.id,
+                        roomId: currentRoom.id
+                    })}
                 >
                     Leave Room
                 </button> : <button

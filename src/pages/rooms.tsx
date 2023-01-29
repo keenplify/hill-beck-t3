@@ -6,10 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { api } from "../utils/api";
 import { z } from "zod";
-import { useRef } from "react";
-import { useRouter } from "next/router";
+import { useEffect, useRef } from "react";
 import { useSocketIOStore } from "../stores/socketio";
-import { JOIN_ROOM_SUCCESSFUL } from "../socket/constants/messages";
 
 const schema = z.object({
     name: z.string().min(3, 'Room name must contain at least 3 character(s)')
@@ -18,28 +16,23 @@ const schema = z.object({
 type Values = z.infer<typeof schema>
 
 const CreateRoomModal = () => {
-    const router = useRouter()
-
-    const { mutate: joinRoomMutate } = api.room.joinRoom.useMutation({
-        onSuccess: () => router.push('/room')
-    })
-
-    const { refetch: refetchRooms } = api.room.getRooms.useQuery();
     const { register, handleSubmit, formState: { errors } } = useForm<Values>({
         resolver: zodResolver(schema)
     });
     const modalRef = useRef<HTMLInputElement>(null)
-    const { mutate } = api.room.createRoom.useMutation({
-        onMutate: () => refetchRooms(),
-        onSuccess: (room) => {
-            if (!modalRef.current) return
-            modalRef.current.checked = false
-            joinRoomMutate(room.id)
-        }
-    })
+    const { socket } = useSocketIOStore()
+    const { data: sessionData } = useSession();
 
     const onSubmit = handleSubmit((data) => {
-        mutate(data)
+        if (!modalRef.current) return
+        modalRef.current.checked = false
+
+        if (!sessionData?.user) return
+
+        socket.emit('create-room', {
+            name: data.name,
+            userId: sessionData.user.id
+        })
     });
 
     return <>
@@ -62,11 +55,30 @@ const CreateRoomModal = () => {
 }
 
 const Rooms: NextPage = () => {
-    const router = useRouter()
-    const { data: rooms } = api.room.getRooms.useQuery();
+    const { data: rooms, refetch } = api.room.getRooms.useQuery();
     const { data: sessionData } = useSession();
 
     const { socket } = useSocketIOStore()
+
+    useEffect(() => {
+        const handleRoomCreated = () => {
+            refetch()
+        }
+
+        socket.on('room-created', handleRoomCreated)
+
+        return () => {
+            socket.off('room-created', handleRoomCreated)
+        }
+    }, [socket, refetch])
+
+    useEffect(() => {
+        socket.emit('lobby')
+
+        return () => {
+            socket.emit('unlobby')
+        }
+    }, [socket])
 
     return (
         <>
@@ -96,13 +108,11 @@ const Rooms: NextPage = () => {
                                         <td>{room.owner.name}</td>
                                         <td>
                                             <button className="btn btn-primary w-full btn-sm" onClick={() => {
+                                                if (!sessionData.user) return
+
                                                 socket.emit('join-room', {
                                                     roomId: room.id,
-                                                    userId: sessionData.user?.id
-                                                })
-
-                                                socket.on('message', (message: string) => {
-                                                    message === JOIN_ROOM_SUCCESSFUL && router.push('/room')
+                                                    userId: sessionData.user.id
                                                 })
                                             }}>Join</button>
                                         </td>

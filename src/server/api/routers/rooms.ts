@@ -12,7 +12,8 @@ export const roomRouter = createTRPCRouter({
       include: {
         currentRoom: {
           include: {
-            users: true
+            users: true,
+            owner: true
           }
         },
       }
@@ -20,7 +21,8 @@ export const roomRouter = createTRPCRouter({
 
     if (!user.currentRoom) return null
     return user.currentRoom as Room & {
-      users: User[]
+      users: User[],
+      owner: User
     }
   }),
 
@@ -30,7 +32,6 @@ export const roomRouter = createTRPCRouter({
         id: ctx.session.user.id,
       },
       data: {
-        //@ts-expect-error I know what i am doing
         currentRoomId: null
       }
     })

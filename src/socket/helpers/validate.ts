@@ -1,4 +1,5 @@
 import type { z, ZodSchema } from "zod";
+import { ZodError } from "zod";
 import { prisma } from "../../server/db";
 import type { SocketIOSocket } from "../socket";
 
@@ -9,7 +10,7 @@ export function validatePayload<T extends ZodSchema>(socket: SocketIOSocket, sch
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return parsed
     } catch (error) {
-        throw socket.emit('exception', error)
+        throw emitErrors(socket, error)
     }
 }
 
@@ -21,6 +22,16 @@ export async function getUser(socket: SocketIOSocket, id: string) {
             }
         })
     } catch (error) {
-        throw socket.emit('exception', error)
+        throw emitErrors(socket, error)
+    }
+}
+
+function emitErrors(socket: SocketIOSocket, error: unknown) {
+    if (error instanceof ZodError) {
+        socket.emit('exception', error.message)
+    } else if (error instanceof Error) {
+        socket.emit('exception', error.message)
+    } else {
+        socket.emit('exception', 'Something has gone wrong')
     }
 }
