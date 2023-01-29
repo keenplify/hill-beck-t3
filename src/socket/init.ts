@@ -1,5 +1,6 @@
 
 import { Server } from 'socket.io'
+import { SetupInstanceManager } from './groups/instance-loop';
 import { SetupRoomSocket } from "./groups/room";
 import { validatePayload } from './helpers/validate';
 import { SetupPayloadSchema } from './schemas/payloads/setup/setup';
@@ -20,6 +21,8 @@ export function initializeSocket(res: NextApiResponseWithSocket) {
 
         SetupRoomSocket(socket, io)
     })
+
+    SetupInstanceManager(io)
 
     return io
 }

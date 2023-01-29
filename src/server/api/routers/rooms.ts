@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import z from 'zod'
 import dayjs from "dayjs";
-import type { Room, User } from "@prisma/client";
+import type { LandPartition, Room, User } from "@prisma/client";
 
 export const roomRouter = createTRPCRouter({
   currentRoom: protectedProcedure.query(async ({ ctx }) => {
@@ -13,7 +13,8 @@ export const roomRouter = createTRPCRouter({
         currentRoom: {
           include: {
             users: true,
-            owner: true
+            owner: true,
+            landPartitions: true
           }
         },
       }
@@ -22,7 +23,8 @@ export const roomRouter = createTRPCRouter({
     if (!user.currentRoom) return null
     return user.currentRoom as Room & {
       users: User[],
-      owner: User
+      owner: User,
+      landPartitions: LandPartition[]
     }
   }),
 
@@ -41,9 +43,9 @@ export const roomRouter = createTRPCRouter({
     return ctx.prisma.room.findMany({
       include: {
         owner: true,
-
       },
       where: {
+        status: 'Lobby',
         updatedAt: {
           gte: dayjs().subtract(10, 'minutes').toDate()
         }

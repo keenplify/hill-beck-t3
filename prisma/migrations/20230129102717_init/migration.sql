@@ -54,6 +54,7 @@ CREATE TABLE "Room" (
     "name" TEXT NOT NULL,
     "status" "RoomStatus" NOT NULL DEFAULT 'Lobby',
     "ownerId" TEXT NOT NULL,
+    "currentTurnUserId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -61,14 +62,23 @@ CREATE TABLE "Room" (
 );
 
 -- CreateTable
-CREATE TABLE "LandPartitions" (
+CREATE TABLE "LandPartition" (
     "id" TEXT NOT NULL,
     "edges" JSONB NOT NULL,
-    "ownerId" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL,
+    "ownerId" TEXT NOT NULL,
     "roomId" TEXT NOT NULL,
 
-    CONSTRAINT "LandPartitions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LandPartition_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LandPartitionVote" (
+    "id" TEXT NOT NULL,
+    "ownerId" TEXT NOT NULL,
+    "landPartitionId" TEXT NOT NULL,
+
+    CONSTRAINT "LandPartitionVote_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -99,7 +109,16 @@ ALTER TABLE "User" ADD CONSTRAINT "User_currentRoomId_fkey" FOREIGN KEY ("curren
 ALTER TABLE "Room" ADD CONSTRAINT "Room_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "LandPartitions" ADD CONSTRAINT "LandPartitions_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Room" ADD CONSTRAINT "Room_currentTurnUserId_fkey" FOREIGN KEY ("currentTurnUserId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "LandPartitions" ADD CONSTRAINT "LandPartitions_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "LandPartition" ADD CONSTRAINT "LandPartition_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LandPartition" ADD CONSTRAINT "LandPartition_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LandPartitionVote" ADD CONSTRAINT "LandPartitionVote_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LandPartitionVote" ADD CONSTRAINT "LandPartitionVote_landPartitionId_fkey" FOREIGN KEY ("landPartitionId") REFERENCES "LandPartition"("id") ON DELETE CASCADE ON UPDATE CASCADE;

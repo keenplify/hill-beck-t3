@@ -6,6 +6,7 @@ import { JOIN_ROOM_SUCCESSFUL, LEAVE_ROOM_SUCCESSFUL, START_ROOM_SUCCESSFUL } fr
 import { CreateRoomPayloadSchema } from "../schemas/payloads/room/create";
 import { StartRoomPayloadSchema } from "../schemas/payloads/room/start";
 import { LeaveRoomPayloadSchema } from "../schemas/payloads/room/leave";
+import { CreatePartitionPayloadSchema } from "../schemas/payloads/partitions/create";
 
 export function SetupRoomSocket(socket: SocketIOSocket, server: SocketIOServer) {
     socket.on('join-room', async (data: unknown) => {
@@ -76,4 +77,19 @@ export function SetupRoomSocket(socket: SocketIOSocket, server: SocketIOServer) 
 
     socket.on('lobby', () => socket.join('lobby'))
     socket.on('unlobby', () => socket.leave('lobby'))
+
+    socket.on('create-partition', async (payload) => {
+        const { points, userId, roomId } = validatePayload(socket, CreatePartitionPayloadSchema, payload)
+
+        const partition = await prisma.landPartition.create({
+            data: {
+                edges: JSON.stringify(points),
+                isActive: false,
+                ownerId: userId,
+                roomId
+            }
+        })
+
+        server.to(roomId).emit('initiate-vote', partition.id)
+    })
 }

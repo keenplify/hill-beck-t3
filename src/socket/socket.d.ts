@@ -8,6 +8,7 @@ import type { CreateRoomPayload } from './schemas/payloads/room/create';
 import type { StartRoomPayload } from './schemas/payloads/room/start';
 import type { LeaveRoomPayload } from './schemas/payloads/room/leave';
 import type { SetupPayload } from './schemas/payloads/setup/setup';
+import type { CreatePartitionPayload } from './schemas/payloads/partitions/create';
 
 export type SocketIOEventsMap = {
     // Client Emitters
@@ -16,14 +17,16 @@ export type SocketIOEventsMap = {
     'create-room': (payload: CreateRoomPayload) => void,
     'room-start': (payload: StartRoomPayload) => void,
     'leave-room': (payload: LeaveRoomPayload) => void,
+    'create-partition': (payload: CreatePartitionPayload) => void,
     'lobby': () => void,
-    'unlobby': () => void
+    'unlobby': () => void,
 
     // Server Emitters
     'exception': (message: string) => void,
     'message': (message: string) => void,
     'room-created': (roomId: string) => void,
-    'room-updated': () => void
+    'room-updated': () => void,
+    'initiate-vote': (partitionId: string) => void
 }
 
 export interface SocketServer extends HTTPServer {
@@ -40,4 +43,4 @@ export interface NextApiResponseWithSocket extends NextApiResponse {
 
 export type SocketIOSocket = Socket<SocketIOEventsMap, SocketIOEventsMap, SocketIOEventsMap, unknown>
 
-export type SocketIOServer = IOServer<SocketIOEventsMap, SocketIOEmittersMap>
+export type SocketIOServer = IOServer<SocketIOEventsMap, SocketIOEventsMap>

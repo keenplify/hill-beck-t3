@@ -47,17 +47,19 @@ model Session {
 }
 
 model User {
-    id             String           @id @default(cuid())
-    name           String?
-    email          String?          @unique
-    emailVerified  DateTime?
-    image          String?
-    accounts       Account[]
-    sessions       Session[]
-    ownedRooms     Room[]           @relation(name: "OwnedRoom")
-    landPartitions LandPartitions[]
-    currentRoomId  String?
-    currentRoom    Room?            @relation(fields: [currentRoomId], references: [id], onDelete: Cascade, name: "CurrentRoom")
+    id                 String              @id @default(cuid())
+    name               String?
+    email              String?             @unique
+    emailVerified      DateTime?
+    image              String?
+    accounts           Account[]
+    sessions           Session[]
+    currentTurnRooms   Room[]
+    ownedRooms         Room[]              @relation(name: "OwnedRoom")
+    landPartitions     LandPartition[]
+    landPartitionVotes LandPartitionVote[]
+    currentRoomId      String?
+    currentRoom        Room?               @relation(fields: [currentRoomId], references: [id], onDelete: Cascade, name: "CurrentRoom")
 }
 
 model VerificationToken {
@@ -69,23 +71,34 @@ model VerificationToken {
 }
 
 model Room {
-    id             String           @id @default(cuid())
-    name           String
-    status         RoomStatus       @default(Lobby)
-    ownerId        String
-    owner          User             @relation(fields: [ownerId], references: [id], onDelete: Cascade, name: "OwnedRoom")
-    users          User[]           @relation(name: "CurrentRoom")
-    landPartitions LandPartitions[]
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @default(now()) @updatedAt()
+    id                String          @id @default(cuid())
+    name              String
+    status            RoomStatus      @default(Lobby)
+    ownerId           String
+    owner             User            @relation(fields: [ownerId], references: [id], onDelete: Cascade, name: "OwnedRoom")
+    users             User[]          @relation(name: "CurrentRoom")
+    currentTurnUserId String?
+    currentTurnUser   User?           @relation(fields: [currentTurnUserId], references: [id], onDelete: Cascade)
+    landPartitions    LandPartition[]
+    createdAt         DateTime        @default(now())
+    updatedAt         DateTime        @default(now()) @updatedAt()
 }
 
-model LandPartitions {
-    id       String  @id @default(cuid())
+model LandPartition {
+    id       String              @id @default(cuid())
     edges    Json
-    ownerId  String
     isActive Boolean
-    owner    User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId  String
+    owner    User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     roomId   String
-    room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+    room     Room                @relation(fields: [roomId], references: [id], onDelete: Cascade)
+    votes    LandPartitionVote[]
+}
+
+model LandPartitionVote {
+    id              String        @id @default(cuid())
+    ownerId         String
+    owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    landPartitionId String
+    landPartition   LandPartition @relation(fields: [landPartitionId], references: [id], onDelete: Cascade)
 }
