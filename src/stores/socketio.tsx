@@ -15,7 +15,10 @@ export const useSocketIOStore = create<SocketIOStore>((set) => {
     const socket = io() as Socket<SocketIOEventsMap, SocketIOEventsMap>
 
     socket.on('message', (msg: string) => {
-        typeof msg === 'string' && toast(msg)
+        typeof msg === 'string' && toast(msg, {
+            type: 'info',
+            theme: 'dark'
+        })
         set({
             latestMessage: msg
         })
@@ -23,7 +26,8 @@ export const useSocketIOStore = create<SocketIOStore>((set) => {
 
     socket.on('exception', (exception) => {
         typeof exception === 'string' && toast(exception, {
-            type: 'error'
+            type: 'error',
+            theme: 'dark'
         })
 
         set({

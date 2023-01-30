@@ -22,7 +22,6 @@ export function MainContainer({ children }: Props) {
 
     useEffect(() => {
         if (sessionData?.user) {
-            console.log('setting up')
             socket.emit('setup', { userId: sessionData.user.id })
         }
     }, [router, socket, sessionData])

@@ -8,16 +8,34 @@ import { api } from "../utils/api";
 import { z } from "zod";
 import { useEffect, useRef } from "react";
 import { useSocketIOStore } from "../stores/socketio";
+import { LazyLeafletMap, LazyMapController } from "../components/LazyMap";
+import { useGeolocated } from "react-geolocated";
 
 const schema = z.object({
-    name: z.string().min(3, 'Room name must contain at least 3 character(s)')
+    name: z.string().min(3, 'Room name must contain at least 3 character(s)'),
+    lat: z.number(),
+    lng: z.number(),
+    zoom: z.number()
 })
 
 type Values = z.infer<typeof schema>
 
 const CreateRoomModal = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm<Values>({
-        resolver: zodResolver(schema)
+    const { coords } =
+        useGeolocated({
+            positionOptions: {
+                enableHighAccuracy: false,
+            },
+            userDecisionTimeout: 5000,
+        });
+
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<Values>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            lat: coords?.latitude ?? 0,
+            lng: coords?.longitude ?? 0,
+            zoom: 8
+        }
     });
     const modalRef = useRef<HTMLInputElement>(null)
     const { socket } = useSocketIOStore()
@@ -31,7 +49,10 @@ const CreateRoomModal = () => {
 
         socket.emit('create-room', {
             name: data.name,
-            userId: sessionData.user.id
+            userId: sessionData.user.id,
+            lat: data.lat,
+            lng: data.lng,
+            zoom: data.zoom
         })
     });
 
@@ -44,6 +65,33 @@ const CreateRoomModal = () => {
                     <div className="flex gap-2 items-center">
                         <label>Room Name:</label>
                         <input className="input input-secondary grow" {...register('name')} />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label>Map Center:</label>
+                        <div className="relative w-full h-[418px]">
+                            <LazyLeafletMap
+                                center={coords ? [coords.latitude, coords.longitude] : [0, 0]}
+                                zoom={8}
+                                className="min-h-[418px]"
+                            >
+                                <LazyMapController
+                                    onDragAndZoom={(values) => {
+                                        setValue('lat', values.center.lat)
+                                        setValue('lng', values.center.lng)
+                                        setValue('zoom', values.zoom)
+                                    }}
+                                    onReady={(map) => {
+                                        if (!map) return;
+
+                                        const center = map.getCenter()
+
+                                        setValue('lat', center.lat)
+                                        setValue('lng', center.lng)
+                                        setValue('zoom', map.getZoom())
+                                    }}
+                                />
+                            </LazyLeafletMap>
+                        </div>
                     </div>
                     {errors.name?.message && <p className="text-error text-sm">{errors.name.message}</p>}
                     <input type="submit" className="btn btn-primary w-full" />

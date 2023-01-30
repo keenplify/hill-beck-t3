@@ -56,8 +56,10 @@ const Room: NextPage = () => {
                             </table>
                         </div>
                         <div className="p-4 rounded-lg shadow h-full flex flex-col w-[16rem] relative bg-secondary-content">
-                            <h1 className="text-md font-bold">Room Name: {room.name}</h1>
-                            <h2 className="text-md">Room Owner: {room.owner.name}</h2>
+                            <p className="text-md font-bold">Room Name: {room.name}</p>
+                            <p className="text-md">Room Owner: {room.owner.name}</p>
+                            <p className="text-md">Coordinates: {room.lat}, {room.lng}</p>
+                            <p className="text-md">Zoom: {room.zoom}</p>
                             {
                                 sessionData?.user?.id === room.ownerId && (
                                     <div className="bottom-0 mt-auto">

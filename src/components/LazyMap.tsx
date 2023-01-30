@@ -1,23 +1,23 @@
 import dynamic from 'next/dynamic'
 import type { FC, ReactNode, RefAttributes } from 'react'
 import { Suspense } from 'react'
-
-import 'leaflet-draw/dist/leaflet.draw.css'
 import type { MapContainerProps } from 'react-leaflet';
 import type { Map } from 'leaflet';
 
-export const LeafletMapWithClusters: FC<
+import "leaflet/dist/leaflet.css";
+import 'leaflet-draw/dist/leaflet.draw.css'
+
+export const LazyLeafletMap: FC<
     {
-        center: [number, number],
         children?: ReactNode
     } & MapContainerProps & RefAttributes<Map>
-> = ({ center, children, ...options }) => {
+> = ({ center, children, zoom, className, ...options }) => {
     return (
         <Suspense fallback={<div className="h-[200px]" />}>
             <LazyMapContainer
                 center={center}
-                zoom={2}
-                className='w-full h-full min-h-[calc(100vh-4rem)]'
+                zoom={zoom ?? 2}
+                className={`w-full h-full ${className}`}
                 {...options}
             >
                 <LazyTileLayer
@@ -47,6 +47,10 @@ export const LazyEditControl = dynamic(async () => (await import('react-leaflet-
 })
 
 export const LazyPolygon = dynamic(async () => (await import('react-leaflet')).Polygon, {
+    ssr: false
+})
+
+export const LazyInstanceMapController = dynamic(async () => (await import('./InstanceMapController')).InstanceMapController, {
     ssr: false
 })
 

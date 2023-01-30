@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import z from 'zod'
 import dayjs from "dayjs";
 import type { LandPartition, Room, User } from "@prisma/client";
@@ -14,7 +14,11 @@ export const roomRouter = createTRPCRouter({
           include: {
             users: true,
             owner: true,
-            landPartitions: true
+            landPartitions: {
+              include: {
+                owner: true
+              }
+            }
           }
         },
       }
@@ -24,17 +28,25 @@ export const roomRouter = createTRPCRouter({
     return user.currentRoom as Room & {
       users: User[],
       owner: User,
-      landPartitions: LandPartition[]
+      landPartitions: (LandPartition & {
+        owner: User
+      })[]
     }
   }),
 
-  leaveRoom: protectedProcedure.mutation(async ({ ctx }) => {
-    return ctx.prisma.user.update({
+  getRoom: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    return ctx.prisma.room.findFirstOrThrow({
       where: {
-        id: ctx.session.user.id,
+        id: input
       },
-      data: {
-        currentRoomId: null
+      include: {
+        users: true,
+        owner: true,
+        landPartitions: {
+          include: {
+            owner: true
+          }
+        }
       }
     })
   }),
@@ -52,28 +64,4 @@ export const roomRouter = createTRPCRouter({
       },
     })
   }),
-
-  createRoom: protectedProcedure
-    .input(z.object({ name: z.string() }))
-    .mutation(({ input, ctx }) => {
-      return ctx.prisma.room.create({
-        data: {
-          name: input.name,
-          ownerId: ctx.session.user.id
-        }
-      })
-    }),
-
-  joinRoom: protectedProcedure
-    .input(z.string())
-    .mutation(async ({ input, ctx }) => {
-      return ctx.prisma.user.update({
-        where: {
-          id: ctx.session.user.id,
-        },
-        data: {
-          currentRoomId: input
-        }
-      })
-    })
 });

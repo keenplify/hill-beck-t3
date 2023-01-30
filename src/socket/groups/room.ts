@@ -29,12 +29,15 @@ export function SetupRoomSocket(socket: SocketIOSocket, server: SocketIOServer) 
     })
 
     socket.on('create-room', async (payload) => {
-        const { name, userId } = validatePayload(socket, CreateRoomPayloadSchema, payload)
+        const { name, userId, lat, lng, zoom } = validatePayload(socket, CreateRoomPayloadSchema, payload)
 
         const room = await prisma.room.create({
             data: {
                 name,
-                ownerId: userId
+                ownerId: userId,
+                lat,
+                lng,
+                zoom
             }
         })
 
@@ -79,11 +82,11 @@ export function SetupRoomSocket(socket: SocketIOSocket, server: SocketIOServer) 
     socket.on('unlobby', () => socket.leave('lobby'))
 
     socket.on('create-partition', async (payload) => {
-        const { points, userId, roomId } = validatePayload(socket, CreatePartitionPayloadSchema, payload)
+        const { coords, userId, roomId } = validatePayload(socket, CreatePartitionPayloadSchema, payload)
 
         const partition = await prisma.landPartition.create({
             data: {
-                edges: JSON.stringify(points),
+                edges: JSON.stringify(coords),
                 isActive: false,
                 ownerId: userId,
                 roomId

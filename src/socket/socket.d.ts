@@ -9,6 +9,7 @@ import type { StartRoomPayload } from './schemas/payloads/room/start';
 import type { LeaveRoomPayload } from './schemas/payloads/room/leave';
 import type { SetupPayload } from './schemas/payloads/setup/setup';
 import type { CreatePartitionPayload } from './schemas/payloads/partitions/create';
+import type { CreatePartitionVotePayload } from './schemas/payloads/partition-votes/create';
 
 export type SocketIOEventsMap = {
     // Client Emitters
@@ -20,13 +21,15 @@ export type SocketIOEventsMap = {
     'create-partition': (payload: CreatePartitionPayload) => void,
     'lobby': () => void,
     'unlobby': () => void,
+    'create-vote': (payload: CreatePartitionVotePayload) => void,
 
     // Server Emitters
     'exception': (message: string) => void,
     'message': (message: string) => void,
     'room-created': (roomId: string) => void,
     'room-updated': () => void,
-    'initiate-vote': (partitionId: string) => void
+    'initiate-vote': (partitionId: string) => void,
+    'instance-ended': () => void
 }
 
 export interface SocketServer extends HTTPServer {

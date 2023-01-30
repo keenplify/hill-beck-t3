@@ -1,42 +1,50 @@
-import L from 'leaflet'
-import { PointSchema } from "../socket/schemas/payloads/partitions/create";
-import { z } from "zod";
 import { useMap } from "react-leaflet";
 import { useEffect } from 'react';
-import { api } from '../utils/api';
+import type { LatLng, LeafletEvent, Map } from "leaflet";
+import L from 'leaflet'
 
-export const MapController = () => {
-    const { data: room } = api.room.currentRoom.useQuery();
+interface Props {
+    onDragAndZoom?: (values: {
+        event: LeafletEvent
+        center: LatLng,
+        zoom: number
+    }) => void
+    onReady?: (map: Map, leaflet: typeof L) => ((() => void) | void)
+}
+
+export const MapController = ({ onDragAndZoom, onReady }: Props) => {
     const map = useMap()
 
     useEffect(() => {
-        const featureGroup = L.featureGroup();
-
-        (async () => {
-            if (!room) return
-
-            const polygons = room.landPartitions.map((p) => {
-                if (!p.edges) return
-                const parsed = JSON.parse(p.edges?.toString())
-                return z.array(PointSchema).parse(parsed)
+        onDragAndZoom && map.addEventListener('dragend', (event) => {
+            onDragAndZoom({
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+                event
             })
+        })
 
-            const coords = polygons.map((polygon) => polygon?.map(point => map.layerPointToLatLng(L.point(point.x, point.y))))
-
-
-            for (const coord of coords) {
-                if (!coord) continue
-
-                featureGroup.addLayer(L.polygon(coord))
-            }
-
-            map.addLayer(featureGroup)
-        })()
+        onDragAndZoom && map.addEventListener('zoomend', (event) => {
+            onDragAndZoom({
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+                event
+            })
+        })
 
         return () => {
-            map.removeLayer(featureGroup)
+            onDragAndZoom && map.removeEventListener('dragend')
+            onDragAndZoom && map.removeEventListener('zoomend')
         }
-    }, [room, map])
+    }, [map, onDragAndZoom])
+
+    useEffect(() => {
+        const cleanup = onReady && onReady(map, L)
+
+        return () => {
+            cleanup && cleanup()
+        }
+    }, [onReady, map])
 
     return <></>
 }

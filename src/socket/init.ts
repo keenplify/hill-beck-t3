@@ -2,6 +2,7 @@
 import { Server } from 'socket.io'
 import { SetupInstanceManager } from './groups/instance-loop';
 import { SetupRoomSocket } from "./groups/room";
+import { SetupVoteSocket } from './groups/vote';
 import { validatePayload } from './helpers/validate';
 import { SetupPayloadSchema } from './schemas/payloads/setup/setup';
 import type { NextApiResponseWithSocket, SocketIOEventsMap } from './socket';
@@ -20,6 +21,7 @@ export function initializeSocket(res: NextApiResponseWithSocket) {
         })
 
         SetupRoomSocket(socket, io)
+        SetupVoteSocket(socket, io)
     })
 
     SetupInstanceManager(io)

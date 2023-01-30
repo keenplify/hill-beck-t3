@@ -77,6 +77,9 @@ model Room {
     ownerId           String
     owner             User            @relation(fields: [ownerId], references: [id], onDelete: Cascade, name: "OwnedRoom")
     users             User[]          @relation(name: "CurrentRoom")
+    lat               Float
+    lng               Float
+    zoom              Int
     currentTurnUserId String?
     currentTurnUser   User?           @relation(fields: [currentTurnUserId], references: [id], onDelete: Cascade)
     landPartitions    LandPartition[]
