@@ -41,7 +41,8 @@ const Instance: NextPage = () => {
                 partitionId={partitionId}
             />, {
                 closeButton: false,
-                autoClose: false
+                autoClose: false,
+                theme: 'dark'
             })
         }
 
