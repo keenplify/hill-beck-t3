@@ -81,6 +81,15 @@ export function SetupInstanceManager(server: SocketIOServer) {
                         }
                     })
 
+                    await prisma.user.updateMany({
+                        where: {
+                            currentRoomId: instance.id
+                        },
+                        data: {
+                            currentRoomId: null
+                        }
+                    })
+
                     server.to(instance.id).emit('instance-ended')
                 }
                 else {
