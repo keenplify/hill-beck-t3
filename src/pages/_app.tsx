@@ -12,22 +12,25 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ToastContainer } from "react-toastify";
 
 import 'react-toastify/dist/ReactToastify.css';
+import { useThemeStore } from "../stores/theme";
 
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
-
+  const { theme } = useThemeStore()
 
   return (
     <SessionProvider session={session}>
-      <MainNavbar />
-      <MainContainer>
-        <Component {...pageProps} />
-      </MainContainer>
-      <ReactQueryDevtools initialIsOpen={false} />
-      <ToastContainer position="bottom-right" />
+      <div data-theme={theme === 'light' ? 'emerald' : 'forest'}>
+        <MainNavbar />
+        <MainContainer>
+          <Component {...pageProps} />
+        </MainContainer>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <ToastContainer position="bottom-right" />
+      </div>
     </SessionProvider>
   );
 };

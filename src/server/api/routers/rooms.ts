@@ -64,4 +64,16 @@ export const roomRouter = createTRPCRouter({
       },
     })
   }),
+
+  getHistory: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.room.findMany({
+      include: {
+        owner: true,
+      },
+      where: {
+        status: 'Done',
+        ownerId: ctx.session.user.id
+      },
+    })
+  }),
 });

@@ -5,6 +5,9 @@ import { useSocketIOStore } from "../stores/socketio";
 import { useEffect } from "react";
 import { env } from "process";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import { useThemeStore } from "../stores/theme";
+import { api } from "../utils/api";
 
 interface Props {
     children: ReactNode
@@ -12,7 +15,9 @@ interface Props {
 
 export function MainContainer({ children }: Props) {
     const { socket } = useSocketIOStore()
-    const { data: sessionData } = useSession();
+    const { data: sessionData } = useSession()
+    const { refetch } = api.room.currentRoom.useQuery();
+    const { theme } = useThemeStore()
 
     const router = useRouter()
 
@@ -28,6 +33,13 @@ export function MainContainer({ children }: Props) {
 
     useEffect(() => {
         const handleMessage = (message: string) => {
+            refetch()
+
+            typeof message === 'string' && toast(message, {
+                type: 'info',
+                theme
+            })
+
             switch (message) {
                 case JOIN_ROOM_SUCCESSFUL:
                     router.push('/room')
@@ -43,12 +55,20 @@ export function MainContainer({ children }: Props) {
 
         socket.on('message', handleMessage)
 
-        return () => {
-            socket.off('message', handleMessage)
-        }
-    }, [socket, router])
+        socket.on('exception', (exception) => {
+            typeof exception === 'string' && toast(exception, {
+                type: 'error',
+                theme
+            })
+        })
 
-    return <main className="flex bg-gradient-to-b from-[#2e026d] to-[#15162c] min-h-[calc(100vh-4rem)] w-full text-white flex-col items-center">
+        return () => {
+            socket.off('message')
+            socket.off('exception')
+        }
+    }, [socket, router, theme])
+
+    return <main className="flex bg-base-100 min-h-[calc(100vh-4rem)] w-full flex-col items-center">
         {children}
     </main>
 }

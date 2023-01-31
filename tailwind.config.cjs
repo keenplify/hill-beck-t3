@@ -13,6 +13,6 @@ module.exports = {
     require('tailwindcss-filters'),
   ],
   daisyui: {
-    themes: ['synthwave']
+    themes: ['emerald', 'forest']
   }
 };

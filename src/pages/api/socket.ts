@@ -5,7 +5,6 @@ import { initializeSocket } from '../../socket/init'
 
 const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
     if (!res.socket.server.io) {
-        console.log('Socket is initializing...')
         initializeSocket(res)
     }
 

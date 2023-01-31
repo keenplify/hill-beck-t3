@@ -13,10 +13,13 @@ import type L from "leaflet";
 import type { Point } from "leaflet";
 import { CoordsSchema } from "../socket/schemas/payloads/partitions/create";
 import { useRouter } from "next/router";
+import { useThemeStore } from "../stores/theme";
 
 const Instance: NextPage = () => {
     const { data: room, refetch } = api.room.currentRoom.useQuery();
     const { data: sessionData } = useSession();
+    const { theme } = useThemeStore()
+
     const { socket } = useSocketIOStore();
     const [map, setMap] = useState<L.Map>()
     const [leaflet, setLeaflet] = useState<typeof L>()
@@ -42,7 +45,7 @@ const Instance: NextPage = () => {
             />, {
                 closeButton: false,
                 autoClose: false,
-                theme: 'dark'
+                theme
             })
         }
 
@@ -51,7 +54,7 @@ const Instance: NextPage = () => {
 
             toast('The instance has ended. Redirecting to summary...', {
                 type: 'success',
-                theme: 'dark'
+                theme
             })
 
             setTimeout(() => {
@@ -81,6 +84,7 @@ const Instance: NextPage = () => {
                 className="min-h-[calc(100vh-4rem)]"
                 dragging={false}
                 zoomControl={false}
+                scrollWheelZoom={false}
             >
                 <LazyMapController
                     onReady={(map, L) => {

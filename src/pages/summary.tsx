@@ -28,8 +28,6 @@ const Summary: NextPage = () => {
                         center={[room.lat, room.lng]}
                         zoom={room.zoom}
                         className="min-h-[calc(100vh-4rem)]"
-                        dragging={false}
-                        zoomControl={false}
                     >
                         <LazyMapController
                             onReady={(map, L) => {

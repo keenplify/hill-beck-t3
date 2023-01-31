@@ -23,8 +23,8 @@ export const serverSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   REDDIT_CLIENT_ID: z.string(),
   REDDIT_CLIENT_SECRET: z.string(),
-  FACEBOOK_CLIENT_ID: z.string(),
-  FACEBOOK_CLIENT_SECRET: z.string(),
+  EMAIL_SERVER: z.string(),
+  EMAIL_FROM: z.string()
 });
 
 /**
@@ -41,8 +41,8 @@ export const serverEnv = {
   DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
   REDDIT_CLIENT_ID: process.env.REDDIT_CLIENT_ID,
   REDDIT_CLIENT_SECRET: process.env.REDDIT_CLIENT_SECRET,
-  FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
-  FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET
+  EMAIL_SERVER: process.env.EMAIL_SERVER,
+  EMAIL_FROM: process.env.EMAIL_FROM
 };
 
 /**
