@@ -74,6 +74,9 @@ export const roomRouter = createTRPCRouter({
         status: 'Done',
         ownerId: ctx.session.user.id
       },
+      orderBy: {
+        updatedAt: 'desc'
+      }
     })
   }),
 });

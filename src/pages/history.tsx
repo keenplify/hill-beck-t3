@@ -9,8 +9,6 @@ const History: NextPage = () => {
     const { data: rooms } = api.room.getHistory.useQuery();
     const { data: sessionData } = useSession();
 
-    console.log(rooms)
-
     return (
         <>
             <Head>
@@ -34,14 +32,6 @@ const History: NextPage = () => {
                                         <td>{room.name}</td>
                                         <td>{room.owner.name}</td>
                                         <td>
-                                            {/* <button className="btn btn-primary w-full btn-sm" onClick={() => {
-                                                if (!sessionData.user) return
-
-                                                socket.emit('join-room', {
-                                                    roomId: room.id,
-                                                    userId: sessionData.user.id
-                                                })
-                                            }}>View</button> */}
                                             <Link
                                                 className="btn btn-primary"
                                                 href={{
