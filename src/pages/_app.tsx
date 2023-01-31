@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 
 import 'react-toastify/dist/ReactToastify.css';
 import { useThemeStore } from "../stores/theme";
+import { useEffect, useState } from "react";
 
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -20,17 +21,26 @@ const MyApp: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps },
 }) => {
   const { theme } = useThemeStore()
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   return (
     <SessionProvider session={session}>
-      <div data-theme={theme === 'light' ? 'emerald' : 'forest'}>
-        <MainNavbar />
-        <MainContainer>
-          <Component {...pageProps} />
-        </MainContainer>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <ToastContainer position="bottom-right" />
-      </div>
+      {
+        isHydrated && (
+          <div data-theme={theme === 'light' ? 'emerald' : 'forest'}>
+            <MainNavbar />
+            <MainContainer>
+              <Component {...pageProps} />
+            </MainContainer>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <ToastContainer position="bottom-right" />
+          </div>
+        )
+      }
     </SessionProvider>
   );
 };
