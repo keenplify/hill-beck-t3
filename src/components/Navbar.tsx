@@ -1,4 +1,5 @@
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -20,7 +21,9 @@ export function MainNavbar() {
 
     return <div className="navbar bg-base-100 h-[4rem]">
         <div className="navbar-start">
-            <Link href="/" className="btn btn-ghost normal-case text-xl">HBLD App</Link>
+            <Link href="/" className="btn btn-ghost normal-case text-xl">
+                <Image src="/logo.png" alt="DLand Logo" width={48} height={48} />
+            </Link>
 
             <label className="swap swap-rotate">
                 <input

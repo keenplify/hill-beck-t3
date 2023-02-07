@@ -7,7 +7,7 @@ import { api } from "../utils/api";
 import "../styles/globals.css";
 import { MainNavbar } from "../components/Navbar";
 import { MainContainer } from "../components/MainContainer";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { ToastContainer } from "react-toastify";
 
@@ -36,7 +36,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
             <MainContainer>
               <Component {...pageProps} />
             </MainContainer>
-            <ReactQueryDevtools initialIsOpen={false} />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
             <ToastContainer position="bottom-right" />
           </div>
         )
